@@ -20,6 +20,7 @@ from actor_critic import ActorCritic
 # GLOBALS
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
+# Adapted from https://towardsdatascience.com/understanding-actor-critic-methods-931b97b6df3f
 def train():
     env = gym.make(args.environment)
 
@@ -89,14 +90,15 @@ def train():
             actor_loss = (-log_probs * advantage).mean()
             critic_loss = 0.5 * advantage.pow(2).mean()
             ac_loss = actor_loss + critic_loss + 0.001 * entropy_term
-        if args.actor_critic_type == 'Q':
+        # TODO: Q-actor critic (pseudocode in google docs)
+        elif args.actor_critic_type == 'Q':
             raise NotImplementedError
 
         ac_optimizer.zero_grad()
         ac_loss.backward()
         ac_optimizer.step()
 
-    # SAVE MODEL
+    # TODO: SAVE MODEL
     # torch.save()
 
     return all_rewards, all_lengths, average_lengths
@@ -121,7 +123,7 @@ def plot(all_rewards, all_lengths, average_lengths):
     axs[1].set_xlabel('Episode')
     axs[1].set_ylabel('Episode length')
     
-    # SAVE PLOT
+    # TODO: SAVE PLOT
     # plt.savefig()
     plt.show()
 
