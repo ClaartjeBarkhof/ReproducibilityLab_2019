@@ -1,16 +1,12 @@
-import torch.nn as nn
 import torch
-from torch import optim
-import random
-import torch.nn.functional as F
-import gym
 import numpy as np
-import matplotlib.pyplot as plt
 from tqdm import tqdm
-from itertools import count
+
+from .helpers import save_models
 
 
-def train_actor_critic(env, models, optimizer, num_episodes, gamma, n_step=1):
+def train_actor_critic(env, models, optimizer, num_episodes, gamma, n_step=1,
+                       model_names=("actor_cartpole", "v_cartpole")):
     """
 
     :param env:
@@ -47,6 +43,8 @@ def train_actor_critic(env, models, optimizer, num_episodes, gamma, n_step=1):
         opt_actor.step()
         opt_critic.step()
 
+    save_models((actor, critic), model_names)
+
     return episode_durations, cumulative_reward
 
 
@@ -60,8 +58,7 @@ def run_episode(env, actor, critic):
     """
     states, actor_values, rewards, log_probs, done_list = [], [], [], [], []
     s = env.reset()
-    for i in count():
-
+    while True:
         a, log_prob = select_action(actor, s)
         v_s = critic(s)
         s_, reward, done, _ = env.step(a)
@@ -91,7 +88,7 @@ def select_action(model, state):
     a = pi_s_a.sample()
     log_prob = pi_s_a.log_prob(a).unsqueeze(0)
 
-    return a.cpu().numpy(), log_prob
+    return a.item(), log_prob
 
 
 def get_cumulative_discounted_rewards(rewards, done_list, gamma):

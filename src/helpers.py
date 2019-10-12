@@ -9,29 +9,34 @@ import gym
 # from .actor_critic import ValueFunction, QValueFunction, Actor
 from .actor_critic import ValueFunction, QValueFunction, Actor
 
-
 def smooth(x, N):
     """
 
     :param x:
     :param N:
     :return:
-    """
+    """  #
+
+    # TODO: maybe misleading for some plots...
     cumsum = np.cumsum(np.insert(x, 0, 0))
     return (cumsum[N:] - cumsum[:-N]) / float(N)
 
 
 # TODO: implement a def plot_results function ...
-def plot_results(results):
+def plot_results(episode_durations, reward_across_episodes):
     """
 
     :param results:
     :return:
     """
-    # plt.plot(smooth(results, 20))
+
+    fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(15, 10))
+    axes[0].plot(smooth(episode_durations, 20))
+    axes[1].plot(reward_across_episodes)
+    fig.tight_layout()
+
     # plt.title('Episode durations per episode')
     # plt.legend(['Policy gradient'])
-    plt.plot(results)
     plt.show()
 
 
@@ -62,3 +67,35 @@ def init_model(model_type, env, learn_rate, device, n_hidden=(128, 256)):
 
     else:
         print("No matching procedure")
+
+
+def save_models(models, model_names):
+    """
+
+    :param models:
+    :param model_names:
+    :return:
+    """
+    path = "models/{}.pth"
+    actor, critic = models
+    torch.save(actor, path.format(model_names[0]))
+    torch.save(critic, path.format(model_names[1]))
+
+
+def visualize_performance(environment_name, model_path, device):
+    env = gym.make(environment_name)
+
+    actor = torch.load(model_path)
+
+    for i in np.arange(30):
+        s = env.reset()
+        while True:
+            env.render()
+            pi_s_a = actor(s)
+            a = pi_s_a.sample().item()
+            s_, reward, done, _ = env.step(a)
+
+            s = s_
+
+            if done:
+                break
