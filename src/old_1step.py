@@ -115,7 +115,7 @@ def train(env, model, optimizer, num_episodes, gamma, n_step=1):
             if tau >= 0:
 
                 # compute G
-                G = compute_G(rewards, gamma, tau, n_step, t, T)
+                G = compute_G_n_step(rewards, gamma, tau, n_step, t, T)
 
                 if tau + n_step < T:
                     with torch.no_grad():
@@ -160,11 +160,11 @@ def train(env, model, optimizer, num_episodes, gamma, n_step=1):
 
 
 # TODO: check as possible error source
-def compute_G(rewards, gamma, tau, n_step, t, T):
+def compute_G_n_step(rewards, gamma, tau, n_step, t, T):
     # print("Alex loss: ", np.sum(gamma ** (i - tau) * rewards[i] for i in range(tau, min(tau + n_step, T))))
     # print("me loss: ", np.sum(rewards[tau:t + 1] * np.power(gamma, range(len(rewards[tau:t + 1])))))
-    return np.sum(rewards[tau:t + 1] * np.power(gamma, range(len(rewards[tau:t + 1]))))
-    # return np.sum(gamma ** (i - tau) * rewards[i] for i in range(tau, min(tau + n_step, T)))
+    # return np.sum(rewards[tau:t + 1] * np.power(gamma, range(len(rewards[tau:t + 1]))))
+    return np.sum(gamma ** (i - tau) * rewards[i] for i in range(tau, min(tau + n_step, T)))
 
 
 def select_action(model, s):

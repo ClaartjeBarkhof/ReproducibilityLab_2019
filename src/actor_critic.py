@@ -67,3 +67,5 @@ class QValueFunction(nn.Module):
         state = torch.FloatTensor(state).to(self.device)
         state_value = self.critic_network(state)
         return state_value
+
+

@@ -9,7 +9,6 @@ import gym
 # from .actor_critic import ValueFunction, QValueFunction, Actor
 from .actor_critic import ValueFunction, QValueFunction, Actor
 
-
 def smooth(x, N):
     """
 
