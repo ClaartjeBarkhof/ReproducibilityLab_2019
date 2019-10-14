@@ -25,6 +25,7 @@ def train_actor_critic(env, models, optimizer, num_episodes, gamma, n_step=1,
     opt_actor, opt_critic = optimizer
 
     # loop for each episode
+    print("Training Started. Runs {} episodes with n-step: {} ...".format(num_episodes, n_step))
     for episode in range(num_episodes):
         states, critic_values, rewards, log_probs, pi_entropy, done_list = run_episode(env, actor, critic)
         cumulative_reward.append(np.sum(rewards))
@@ -50,14 +51,13 @@ def train_actor_critic(env, models, optimizer, num_episodes, gamma, n_step=1,
 
         if episode % 10 == 0:
             print(
-                "Episode: {}:  current reward: {}, average reward: {},   current steps: {},   loss: {} ".format(episode,
-                                                                                                                np.sum(
-                                                                                                                    rewards),
-                                                                                                                np.mean(
-                                                                                                                    cumulative_reward),
-                                                                                                                len(
-                                                                                                                    rewards),
-                                                                                                                actor_loss + critic_loss))
+                "Episode: {}/{}:  current reward: {}, average reward: {},   current steps: {},   loss: {} ".format(
+                    episode,
+                    num_episodes,
+                    np.sum(rewards),
+                    np.mean(cumulative_reward),
+                    len(rewards),
+                    actor_loss))
 
         save_models((actor, critic), model_names)
 

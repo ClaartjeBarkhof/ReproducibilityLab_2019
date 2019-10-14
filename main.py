@@ -21,9 +21,9 @@ def start_training(device):
     # TODO: Some more elaborated loop where we organize our experiments
 
     # later in loop
-    no_experiment = 0
+    no_experiment = 1
 
-    env = gym.make(environments[no_experiment]).unwrapped
+    env = gym.make(environments[no_experiment])
     model_names = model_names[no_experiment]
     learn_rates = learning_rates[no_experiment]
 
@@ -35,7 +35,7 @@ def start_training(device):
     np.random.seed(seed)
     torch.manual_seed(seed)
     env.seed(seed)
-    n_step = 3
+    n_step = 5
 
     models, optimizer = helpers.init_model(model_types[0], env, learn_rates, device, n_hidden=(64, 64))
     performance, cumulative_reward = train.train_actor_critic(env, models, optimizer, num_episodes, gamma, n_step,
@@ -51,12 +51,12 @@ if __name__ == "__main__":
 
     start_training(device)
 
-    # model_path = "models/actor_mountainCar.pth"
-    model_path = "models/actor_cartpole.pth"
+    model_path = "models/actor_mountainCar.pth"
+    # model_path = "models/actor_cartpole.pth"
     # model_path = "models/actor_lunarlander.pth"
     # model_path = "models/actor_taxi.pth"
-    # environment_name = "MountainCar-v0"
-    environment_name = "CartPole-v0"
+    environment_name = "MountainCar-v0"
+    # environment_name = "CartPole-v0"
     # environment_name = "LunarLander-v2"
     # environment_name = "Taxi-v2"
     helpers.visualize_performance(environment_name, model_path, device)
