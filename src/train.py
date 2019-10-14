@@ -25,13 +25,14 @@ def train_actor_critic(env, models, optimizer, num_episodes, gamma, n_step=1,
     opt_actor, opt_critic = optimizer
 
     # loop for each episode
-    for episode in tqdm(range(num_episodes)):
+    for episode in range(num_episodes):
         states, critic_values, rewards, log_probs, pi_entropy, done_list = run_episode(env, actor, critic)
         cumulative_reward.append(np.sum(rewards))
         episode_durations.append(len(rewards))
 
         # TODO: probably here a good place distinguish different critics and returns
-        if n_step == 1:
+        # Monte Carlo: -1, otherwise n-step 1 ... N
+        if n_step == -1:
             discounted_returns = get_cumulative_discounted_rewards(rewards, done_list, gamma)
             discounted_returns = (discounted_returns - discounted_returns.mean()) / discounted_returns.std()
             actor_loss, critic_loss = calculate_loss(discounted_returns, log_probs, critic_values, pi_entropy)
@@ -47,7 +48,18 @@ def train_actor_critic(env, models, optimizer, num_episodes, gamma, n_step=1,
         opt_actor.step()
         opt_critic.step()
 
-    save_models((actor, critic), model_names)
+        if episode % 10 == 0:
+            print(
+                "Episode: {}:  current reward: {}, average reward: {},   current steps: {},   loss: {} ".format(episode,
+                                                                                                                np.sum(
+                                                                                                                    rewards),
+                                                                                                                np.mean(
+                                                                                                                    cumulative_reward),
+                                                                                                                len(
+                                                                                                                    rewards),
+                                                                                                                actor_loss + critic_loss))
+
+        save_models((actor, critic), model_names)
 
     return episode_durations, cumulative_reward
 
@@ -69,7 +81,7 @@ def run_episode(env, actor, critic):
         s_, reward, done, _ = env.step(a)
 
         # For better exploration ?!
-        pi_entropy = pi_s_a.entropy().mean()
+        pi_entropy = pi_s_a.entropy()
 
         states.append(s)
         critic_values.append(v_s)
@@ -81,6 +93,8 @@ def run_episode(env, actor, critic):
         s = s_
 
         if done:
+            v_s = critic(s)
+            critic_values.append(v_s)
             break
 
     return states, torch.stack(critic_values), rewards, torch.stack(log_probs), torch.stack(pi_entropies), done_list
@@ -132,14 +146,17 @@ def compute_n_step_returns(rewards, values, gamma, n_step):
         returns.append(torch.sum(
             torch.stack(rewards[i: np.min((i + n_step, T))]) * torch.FloatTensor(
                 np.power(gamma, np.arange(len(rewards[i: np.min((i + n_step, T))]))))[:, None]))
-
     returns = torch.stack(returns)[:, None]
 
-    returns[:T - (n_step - 1)] += torch.FloatTensor(np.power(gamma, np.ones(T - (n_step - 1)) * n_step))[:,
-                                  None] * values[n_step - 1:]
+    if n_step == 1:
+        returns += torch.FloatTensor(np.power(gamma, np.ones(T)))[:, None] * values[n_step:]
 
-    returns[T - (n_step - 1):] += torch.FloatTensor(np.power(gamma, np.ones(n_step - 1) * n_step))[:,
-                                  None] * values[T - (n_step - 1):]
+    else:
+        returns[:T - (n_step - 1)] += torch.FloatTensor(np.power(gamma, np.ones(T - (n_step - 1)) * n_step))[:,
+                                      None] * values[n_step:]
+
+        returns[T - (n_step - 1):] += torch.FloatTensor(np.power(gamma, np.ones(n_step - 1) * n_step))[:,
+                                      None] * values[T]
 
     return returns
 
@@ -147,16 +164,16 @@ def compute_n_step_returns(rewards, values, gamma, n_step):
 def calculate_loss(discounted_returns, log_prob, v_s, pi_entropy, batch=True):
     """
 
-    :param discounted_returns:
+    :param discounted_returns:.unwrapped
     :param log_prob:
     :param v_s:
     :return:
     """
 
-    advantage = discounted_returns - v_s
+    advantage = discounted_returns - v_s[:-1]
 
     if batch:
-        loss_actor = -(log_prob * advantage.detach() - pi_entropy * 0.01).mean()
+        loss_actor = (-log_prob * advantage.detach() - pi_entropy * 0.01).mean()
         loss_critic = advantage.pow(2).mean()
 
         return loss_actor, loss_critic * 0.5
@@ -166,7 +183,6 @@ def calculate_loss(discounted_returns, log_prob, v_s, pi_entropy, batch=True):
         loss_critic = advantage.pow(2).mean()
 
         return loss_actor, loss_critic * 0.5
-
 
 
 ## EXPERIMENT WITH ONE STEP AGAIN
@@ -209,7 +225,6 @@ def train_one_step(env, models, optimizer, num_episodes, gamma, n_step=1, model_
 
                 # compute G
                 G = compute_G_n_step(rewards, gamma, tau, n_step, t, T)
-                print(G)
 
                 if tau + n_step < T:
                     with torch.no_grad():
@@ -224,7 +239,7 @@ def train_one_step(env, models, optimizer, num_episodes, gamma, n_step=1, model_
                 # For better exploration ?!
                 pi_entropy = pi_s_a_tau.entropy().mean()
 
-                actor_loss, critic_loss = calculate_loss(G, log_prob_tau, v_s_tau, pi_entropy)
+                actor_loss, critic_loss = calculate_loss(G, log_prob_tau, v_s_tau, pi_entropy, False)
 
                 # backprop
                 opt_actor.zero_grad()

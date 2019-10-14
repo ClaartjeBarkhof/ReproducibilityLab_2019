@@ -1,3 +1,5 @@
+import time
+
 import torch
 from torch import optim
 
@@ -7,7 +9,7 @@ import matplotlib.pyplot as plt
 import gym
 
 # from .actor_critic import ValueFunction, QValueFunction, Actor
-from .actor_critic import ValueFunction, QValueFunction, Actor
+from .actor_critic import ValueFunction, Actor
 
 def smooth(x, N):
     """
@@ -56,12 +58,16 @@ def init_model(model_type, env, learn_rates, device, n_hidden=(128, 256)):
     print(env.observation_space)
     print(env.action_space)
     n_state_features = env.observation_space.shape[0]
+    # n_state_features = env.observation_space.n
     n_actions = env.action_space.n
 
     if model_type == "TD":
         actor = Actor(n_state_features, n_actions, n_hidden, device).to(device)
         critic = ValueFunction(n_state_features, n_hidden, device).to(device)
-
+        print("Actor Network: ")
+        print(actor)
+        print("Critic Network: ")
+        print(critic)
         opt_actor = optim.Adam(actor.parameters(), lr_actor)
         opt_critic = optim.Adam(critic.parameters(), lr_critic)
 
@@ -89,15 +95,24 @@ def visualize_performance(environment_name, model_path, device):
 
     actor = torch.load(model_path)
 
-    for i in np.arange(30):
+    rewards = []
+    for episode in np.arange(100):
         s = env.reset()
+        episode_reward = 0
         while True:
             env.render()
             pi_s_a = actor(s)
             a = pi_s_a.sample().item()
-            s_, reward, done, _ = env.step(a)
+            s_, r, done, _ = env.step(a)
+            episode_reward += r
 
             s = s_
-
             if done:
+                rewards.append(episode_reward)
+                print(episode_reward)
                 break
+
+    print("Average reward over episodes: ", np.mean(rewards))
+    plt.plot(rewards)
+
+

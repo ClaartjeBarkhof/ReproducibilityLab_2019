@@ -9,25 +9,25 @@ from src import train, helpers
 
 
 def start_training(device):
-    environments = ["CartPole-v0", "MountainCar-v0", "LunarLander-v2"]
+    environments = ["CartPole-v0", "MountainCar-v0", "LunarLander-v2", "Taxi-v2", "Blackjack-v0"]
     # names for saving the models afterwards
     model_names = [("actor_cartpole", "v_cartpole"), ("actor_mountainCar", "v_mountainCar"),
-                   ("actor_lunarlander", "v_lunarlander")]
+                   ("actor_lunarlander", "v_lunarlander"), ("actor_taxi", "v_taxi")]
 
-    learning_rates = [(7e-4, 7e-4), (7e-4, 7e-4), (0.001, 0.001)]
+    learning_rates = [(7e-4, 7e-4), (7e-4, 7e-4), (7e-4, 7e-4), (7e-4, 7e-4), (7e-4, 7e-4)]
 
     model_types = ["TD", "Q", "Advantage"]
 
     # TODO: Some more elaborated loop where we organize our experiments
 
     # later in loop
-    no_experiment = 2
+    no_experiment = 0
 
-    env = gym.make(environments[no_experiment])
+    env = gym.make(environments[no_experiment]).unwrapped
     model_names = model_names[no_experiment]
     learn_rates = learning_rates[no_experiment]
 
-    num_episodes = 2000
+    num_episodes = 600
     gamma = 0.99
 
     seed = 42
@@ -48,15 +48,15 @@ def start_training(device):
 
 if __name__ == "__main__":
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
     start_training(device)
 
-    # environment_name = "MountainCar-v0"
     # model_path = "models/actor_mountainCar.pth"
-
-    # model_path = "models/actor_mountainCar.pth"
-    # model_path = "models/actor_cartpole.pth"
-    model_path = "models/actor_lunarlander.pth"
+    model_path = "models/actor_cartpole.pth"
+    # model_path = "models/actor_lunarlander.pth"
+    # model_path = "models/actor_taxi.pth"
     # environment_name = "MountainCar-v0"
-    # environment_name = "CartPole-v0"
-    environment_name = "LunarLander-v2"
+    environment_name = "CartPole-v0"
+    # environment_name = "LunarLander-v2"
+    # environment_name = "Taxi-v2"
     helpers.visualize_performance(environment_name, model_path, device)
