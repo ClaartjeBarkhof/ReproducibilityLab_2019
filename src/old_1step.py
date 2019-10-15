@@ -174,3 +174,94 @@ def select_action(model, s):
     a = torch.multinomial(pi_s_a, 1).item()
     log_prob = torch.log(pi_s_a.squeeze(0)[a])
     return a, log_prob
+
+
+## EXPERIMENT WITH ONE STEP AGAIN
+def train_one_step(env, models, optimizer, num_episodes, gamma, n_step=1, model_names=("actor_cartpole", "v_cartpole")):
+    episode_durations = []
+    cumulative_reward = []
+
+    actor, critic = models
+    opt_actor, opt_critic = optimizer
+
+    # loop for each episode
+    for episode in tqdm(range(num_episodes)):
+
+        T = np.inf
+        I = 1
+        step, t = 0, 0
+        s = env.reset()
+
+        states = [s]  # S_0, S_1, ...
+        rewards = []  # R_1, R_2, ...
+
+        while True:
+
+            if t < T:
+                with torch.no_grad():
+                    a, log_prob, pi_s_a = select_action(actor, s)
+
+                # take action
+                s_, r, done, _ = env.step(a)
+
+                rewards.append(r)
+                states.append(s_)
+
+                if done:
+                    T = t + 1
+
+            tau = t - n_step + 1
+
+            if tau >= 0:
+
+                # compute G
+                G = compute_G_n_step(rewards, gamma, tau, n_step, t, T)
+
+                if tau + n_step < T:
+                    with torch.no_grad():
+                        v_s_new = critic(s_)
+                        G += (gamma ** n_step) * v_s_new
+
+                # update model for state s_tau
+                state_tau = states[tau]
+                a, log_prob_tau, pi_s_a_tau = select_action(actor, state_tau)
+                v_s_tau = critic(s)
+
+                # For better exploration ?!
+                pi_entropy = pi_s_a_tau.entropy().mean()
+
+                actor_loss, critic_loss = calculate_loss(G, log_prob_tau, v_s_tau, pi_entropy, False)
+
+                # backprop
+                opt_actor.zero_grad()
+                opt_critic.zero_grad()
+                actor_loss.backward()
+                critic_loss.backward()
+                opt_actor.step()
+                opt_critic.step()
+
+            # update episode and records
+            s = s_
+            t += 1
+            I = gamma * I
+
+            if tau == T - 1:
+                cumulative_reward.append(np.sum(rewards))
+                break
+
+        if episode % 10 == 0:
+            # print("E{0}- Steps:{1} Loss:{2}".format(episode, t, loss))
+            pass
+
+        episode_durations.append(t)
+
+    save_models((actor, critic), model_names)
+
+    return episode_durations, cumulative_reward
+
+
+def compute_G_n_step(rewards, gamma, tau, n_step, t, T):
+    # print("Alex loss: ", np.sum(gamma ** (i - tau) * rewards[i] for i in range(tau, min(tau + n_step, T))))
+    # print("me loss: ", np.sum(rewards[tau:t + 1] * np.power(gamma, range(len(rewards[tau:t + 1])))))
+    # return np.sum(rewards[tau:t + 1] * np.power(gamma, range(len(rewards[tau:t + 1]))))
+    return np.sum(gamma ** (i - tau) * rewards[i] for i in range(tau, min(tau + n_step, T)))

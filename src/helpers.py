@@ -8,8 +8,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import gym
 
-# from .actor_critic import ValueFunction, QValueFunction, Actor
-from .actor_critic import ValueFunction, Actor
+from .actor_critic import ValueFunction, Actor, QValueFunction
+
 
 def smooth(x, N):
     """
@@ -25,21 +25,26 @@ def smooth(x, N):
 
 
 # TODO: implement a def plot_results function ...
-def plot_results(episode_durations, reward_across_episodes):
+def plot_results(episode_durations, running_average, reward_across_episodes, actor_losses, n_step, environment_name,
+                 model_types):
     """
-
     :param episode_durations:
     :param reward_across_episodes:
     :return:
     """
 
-    fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(15, 10))
-    axes[0].plot(smooth(episode_durations, 20))
-    axes[1].plot(reward_across_episodes)
-    fig.tight_layout()
+    fig = plt.figure(figsize=(15, 6), dpi=300)
+    ax1 = fig.add_subplot(1, 2, 1)
+    ax2 = fig.add_subplot(1, 2, 2)
+    fig.suptitle('{} Actor-Critic in {} at n: {}'.format(model_types, environment_name, n_step), fontsize=24)
 
-    # plt.title('Episode durations per episode')
-    # plt.legend(['Policy gradient'])
+    ax1.plot(running_average, label="Running average", color="r")
+    ax2.plot(reward_across_episodes, label="Average", color="g")
+
+    ax1.legend()
+    ax2.legend()
+
+    plt.savefig("{}_n_step{}_{}.png".format(environment_name, n_step, model_types))
     plt.show()
 
 
@@ -61,9 +66,21 @@ def init_model(model_type, env, learn_rates, device, n_hidden=(128, 256)):
     # n_state_features = env.observation_space.n
     n_actions = env.action_space.n
 
-    if model_type == "TD":
+    if model_type == "Advantage" or model_type == "Reinforce":
         actor = Actor(n_state_features, n_actions, n_hidden, device).to(device)
         critic = ValueFunction(n_state_features, n_hidden, device).to(device)
+        print("Actor Network: ")
+        print(actor)
+        print("Critic Network: ")
+        print(critic)
+        opt_actor = optim.Adam(actor.parameters(), lr_actor)
+        opt_critic = optim.Adam(critic.parameters(), lr_critic)
+
+        return (actor, critic), (opt_actor, opt_critic)
+
+    elif model_type == "Q":
+        actor = Actor(n_state_features, n_actions, n_hidden, device).to(device)
+        critic = QValueFunction(n_state_features, n_actions, n_hidden, device).to(device)
         print("Actor Network: ")
         print(actor)
         print("Critic Network: ")
@@ -116,3 +133,17 @@ def visualize_performance(environment_name, model_path, device):
     plt.plot(rewards)
 
 
+'''
+Now Q-learning helpers
+'''
+
+
+def compute_q_val(model, state, action):
+    if isinstance(action, int):
+        pred = model(state)
+        return pred[action].unsqueeze(0), pred
+    else:
+        pred = model(state)
+        return torch.gather(pred, 1, action[:, None]).reshape(-1), pred
+
+# def select_q_from_action():
