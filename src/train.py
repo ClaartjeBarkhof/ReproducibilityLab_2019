@@ -53,10 +53,7 @@ def train_actor_critic(env, models, optimizer, num_episodes, gamma, n_step=1,
 
         opt_actor.zero_grad()
         opt_critic.zero_grad()
-        if model_type == "Reinforce":
-            actor_loss.backward(retain_graph=True)
-        else:
-            actor_loss.backward()
+        actor_loss.backward()
         critic_loss.backward()
         opt_actor.step()
         opt_critic.step()

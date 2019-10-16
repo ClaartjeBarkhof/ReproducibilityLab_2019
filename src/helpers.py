@@ -44,7 +44,18 @@ def plot_results(episode_durations, running_average, reward_across_episodes, act
     ax1.legend()
     ax2.legend()
 
-    plt.savefig("Results/{}_n_step{}_{}.png".format(environment_name, n_step, model_types))
+    result_dict = { 'Environement': environment_name,
+                    'n_step':n_step,
+                    'running_average': running_average,
+                    'Rewards_across_episodes': reward_across_episodes,
+                    'actor_losses':actor_losses,
+                    'model_type':model_types
+                    }
+
+    # save results in npy for altering plots later on etc.
+    np.save("Results/numpy/{}_n_step{}_{}.npy".format(environment_name, n_step, model_types), result_dict)
+    # save plt
+    plt.savefig("Results/Plots/{}_n_step{}_{}.png".format(environment_name, n_step, model_types))
     # plt.show()
 
 
@@ -132,12 +143,9 @@ def visualize_performance(environment_name, model_path, device):
     print("Average reward over episodes: ", np.mean(rewards))
     plt.plot(rewards)
 
-
 '''
 Now Q-learning helpers
 '''
-
-
 def compute_q_val(model, state, action):
     if isinstance(action, int):
         pred = model(state)
