@@ -23,30 +23,34 @@ def start_training(environment_name, model_type, n_step, max_episodes):
     # INIT
     models, optimizer = helpers.init_model(model_type, env, learn_rates, device, n_hidden=(64, 64))
     # TRAIN
-    episode_durations, cumulative_reward, actor_losses, critic_losses, running_average = train.train_actor_critic(env, environment_name, models, 
-                                                                            optimizer, num_episodes, gamma,
-                                                                            n_step,
-                                                                            model_type)
+    episode_durations, cumulative_reward, actor_losses, critic_losses, running_average = train.train_actor_critic(env,
+                                                                                                                  environment_name,
+                                                                                                                  models,
+                                                                                                                  optimizer,
+                                                                                                                  num_episodes,
+                                                                                                                  gamma,
+                                                                                                                  n_step,
+                                                                                                                  model_type)
     # PLOT
-    helpers.plot_results(episode_durations, running_average, cumulative_reward, actor_losses, critic_losses, n_step, environment_name,
+    helpers.plot_results(episode_durations, running_average, cumulative_reward, actor_losses, critic_losses, n_step,
+                         environment_name,
                          model_type)
 
 
 def run_experiments(max_episodes):
-    # names for saving the models afterwards
     environments = ["CartPole-v0", "MountainCar-v0", "Taxi-v2", "LunarLander-v2"]
     for environment in environments:
         model_types = ["Reinforce", "Advantage", "Q"] #, "Q"
         for model_type in model_types:
             n_steps = [1, 2, 4, 8]
             if model_type == "Reinforce":
-                    n_step = "Monte Carlo"
-                    print("\n --> Reinforce is automatically all N steps, so no n-step variations needed. \n")
-                    print('**********************************************************************')
-                    print("Environment:", environment, 'Model type:', model_type, 'N_step:', n_step)
-                    print('**********************************************************************')
-                    
-                    start_training(environment, model_type, n_step, max_episodes)
+                n_step = "Monte Carlo"
+                print("\n --> Reinforce is automatically all N steps, so no n-step variations needed. \n")
+                print('**********************************************************************')
+                print("Environment:", environment, 'Model type:', model_type, 'N_step:', n_step)
+                print('**********************************************************************')
+
+                start_training(environment, model_type, n_step, max_episodes)
             else:
                 for n_step in n_steps:
                     print('**********************************************************************')
@@ -54,7 +58,8 @@ def run_experiments(max_episodes):
                     print('**********************************************************************')
 
                     start_training(environment, model_type, n_step, max_episodes)
-        
+
+
 if __name__ == "__main__":
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -81,7 +86,7 @@ if __name__ == "__main__":
     ARGS = parser.parse_args()
 
     if ARGS.run_experiments == ARGS.visualise:
-        print( '***** You can not both run experiments and visualise in one run. You have to choose between the two options. \n \
+        print('***** You can not both run experiments and visualise in one run. You have to choose between the two options. \n \
                 EITHER: \n \
                 --run_experiments=True \n \
                 OR eg: \n \

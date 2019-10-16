@@ -26,7 +26,8 @@ def smooth(x, N):
 
 
 # TODO: implement a def plot_results function ...
-def plot_results(episode_durations, running_average, reward_across_episodes, actor_losses, critic_losses, n_step, environment_name,
+def plot_results(episode_durations, running_average, reward_across_episodes, actor_losses, critic_losses, n_step,
+                 environment_name,
                  model_types):
     """
     :param episode_durations:
@@ -148,9 +149,12 @@ def visualize_performance(environment_name, model_path, device):
     print("Average reward over episodes: ", np.mean(rewards))
     plt.plot(rewards)
 
+
 '''
 Now Q-learning helpers
 '''
+
+
 def compute_q_val(model, state, action):
     if isinstance(action, int):
         pred = model(state)
