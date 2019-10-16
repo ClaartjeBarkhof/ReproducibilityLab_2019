@@ -42,12 +42,13 @@ def train_actor_critic(env, environment_name, models, optimizer, num_episodes, g
         if type(n_step) == int:
             if len(rewards) > n_step:
                 n_longer_than_r = True
-            else: n_longer_than_r = False
-        if (n_step == "Monte Carlo") or (n_longer_than_r == True):
+            else:
+                n_longer_than_r = False
+        if n_step == "Monte Carlo" or n_longer_than_r == True:
             discounted_returns = get_cumulative_discounted_rewards(rewards, done_list, gamma)
             discounted_returns = (discounted_returns - discounted_returns.mean()) / discounted_returns.std()
             actor_loss, critic_loss = calculate_loss(discounted_returns, log_probs, critic_values, pi_entropy,
-                                                     model_type=model_type)
+                                                     actions=actions, model_type=model_type)
         else:
             n_step_returns = compute_n_step_returns(rewards, critic_values, gamma, n_step, model_type, actions=actions,
                                                     done=done_list)
@@ -228,7 +229,6 @@ def calculate_loss(discounted_returns, log_prob, v_s, pi_entropy, actions=None, 
         loss_critic = advantage.pow(2).mean()
 
         return loss_actor, loss_critic * 0.5
-
 
     elif model_type == "Q":
         q_values = torch.gather(v_s[:-1], 1, actions[:, None])

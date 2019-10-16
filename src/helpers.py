@@ -25,7 +25,8 @@ def smooth(x, N):
 
 
 # TODO: implement a def plot_results function ...
-def plot_results(episode_durations, running_average, reward_across_episodes, actor_losses, critic_losses, n_step, environment_name,
+def plot_results(episode_durations, running_average, reward_across_episodes, actor_losses, critic_losses, n_step,
+                 environment_name,
                  model_types):
     """
     :param episode_durations:
@@ -44,14 +45,14 @@ def plot_results(episode_durations, running_average, reward_across_episodes, act
     ax1.legend()
     ax2.legend()
 
-    result_dict = { 'Environement': environment_name,
-                    'n_step':n_step,
-                    'running_average': running_average,
-                    'Rewards_across_episodes': reward_across_episodes,
-                    'actor_losses':actor_losses,
-                    'critic_losses':critic_losses,
-                    'model_type':model_types
-                    }
+    result_dict = {'Environement': environment_name,
+                   'n_step': n_step,
+                   'running_average': running_average,
+                   'Rewards_across_episodes': reward_across_episodes,
+                   'actor_losses': actor_losses,
+                   'critic_losses': critic_losses,
+                   'model_type': model_types
+                   }
 
     # save results in npy for altering plots later on etc.
     np.save("Results/numpy/{}_n_step{}_{}.npy".format(environment_name, n_step, model_types), result_dict)
@@ -145,9 +146,12 @@ def visualize_performance(environment_name, model_path, device):
     print("Average reward over episodes: ", np.mean(rewards))
     plt.plot(rewards)
 
+
 '''
 Now Q-learning helpers
 '''
+
+
 def compute_q_val(model, state, action):
     if isinstance(action, int):
         pred = model(state)
