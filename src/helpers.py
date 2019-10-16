@@ -46,14 +46,14 @@ def plot_results(episode_durations, running_average, reward_across_episodes, act
     ax1.legend()
     ax2.legend()
 
-    result_dict = { 'environment': environment_name,
-                    'n_step':n_step,
-                    'running_average': running_average,
-                    'rewards_across_episodes': reward_across_episodes,
-                    'actor_losses':actor_losses,
-                    'critic_losses':critic_losses,
-                    'model_type':model_types
-                    }
+    result_dict = {'environment': environment_name,
+                   'n_step': n_step,
+                   'running_average': running_average,
+                   'rewards_across_episodes': reward_across_episodes,
+                   'actor_losses': actor_losses,
+                   'critic_losses': critic_losses,
+                   'model_type': model_types
+                   }
 
     # save results in npy for altering plots later on etc.
     # np.save("Results/numpy/{}_n_step{}_{}.npy".format(environment_name, n_step, model_types), result_dict)
@@ -79,8 +79,8 @@ def init_model(model_type, env, learn_rates, device, n_hidden=(128, 256)):
     # print(env.observation_space.n)
     # quit()
     # print(env.action_space)
-    # n_state_features = env.observation_space.shape[0]
-    n_state_features = env.observation_space.n
+    n_state_features = env.observation_space.shape[0]
+    # n_state_features = env.observation_space.n
     n_actions = env.action_space.n
 
     if model_type == "Advantage" or model_type == "Reinforce":
@@ -127,7 +127,8 @@ def save_models(models, model_type, n_step, environment_name):
 
 def visualize_performance(environment_name, model_path, device):
     env_to_wrap = gym.make(environment_name)
-    env = gym.wrappers.Monitor(env_to_wrap, 'Videos/{}/{}/'.format(environment_name, model_path.split('/')[-1]), force = True, video_callable=lambda episode_id: True)
+    env = gym.wrappers.Monitor(env_to_wrap, 'Videos/{}/{}/'.format(environment_name, model_path.split('/')[-1]),
+                               force=True, video_callable=lambda episode_id: True)
     actor = torch.load(model_path)
 
     rewards = []
@@ -150,10 +151,10 @@ def visualize_performance(environment_name, model_path, device):
     env.close()
     env_to_wrap.close()
 
-    f = open('Videos/{}/{}/rewards.txt'.format(environment_name, model_path.split('/')[-1]),"w+")
-    for i,r in enumerate(rewards):
-        f.write(str(r)+"\n")
-    f.write("Average reward over episodes: "+str(np.mean(rewards)))
+    f = open('Videos/{}/{}/rewards.txt'.format(environment_name, model_path.split('/')[-1]), "w+")
+    for i, r in enumerate(rewards):
+        f.write(str(r) + "\n")
+    f.write("Average reward over episodes: " + str(np.mean(rewards)))
     f.close()
 
     print("Average reward over episodes: ", np.mean(rewards))

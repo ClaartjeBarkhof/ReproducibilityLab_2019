@@ -38,9 +38,9 @@ def start_training(environment_name, model_type, n_step, max_episodes):
 
 
 def run_experiments(max_episodes):
-    environments = ["LunarLander-v2","CartPole-v0", "MountainCar-v0","Taxi-v2"] # 
+    environments = ["CartPole-v0", "LunarLander-v2", "MountainCar-v0", "Taxi-v2"]  #
     for environment in environments:
-        model_types = ["Advantage", "Q", "Reinforce"] #"Reinforce"
+        model_types = ["Advantage", "Q", "Reinforce"]  # "Reinforce"
         for model_type in model_types:
             n_steps = [1, 2, 4, 8]
             if model_type == "Reinforce":
@@ -71,18 +71,18 @@ if __name__ == "__main__":
 
     # PARS ARGUMENTS
     parser = argparse.ArgumentParser()
-    parser.add_argument(    '--run_experiments', default=False, type=bool,
-                            help='whether experiments should be run')
-    parser.add_argument(    '--visualise', default=False, type=bool,
-                            help='whether trained models should be loaded and visualised')
-    parser.add_argument(    '--model_type', default='Advantage', type=str,
-                            help='Advantage, Q or Reinforce')
-    parser.add_argument(    '--n_step', default='1', type=str,
-                            help='"1", "2", "4", "8" OR "Monte Carlo" in combination with Reinforce')
-    parser.add_argument(    '--environment', default='CartPole-v0', type=str,
-                            help='"CartPole-v0", "MountainCar-v0", "LunarLander-v2", "Taxi-v2"')
-    parser.add_argument(    '--max_episodes', default=1000, type=int,
-                            help='For testing purposes sometimes you want to lower the number of episodes')
+    parser.add_argument('--run_experiments', default=False, type=bool,
+                        help='whether experiments should be run')
+    parser.add_argument('--visualise', default=False, type=bool,
+                        help='whether trained models should be loaded and visualised')
+    parser.add_argument('--model_type', default='Advantage', type=str,
+                        help='Advantage, Q or Reinforce')
+    parser.add_argument('--n_step', default='1', type=str,
+                        help='"1", "2", "4", "8" OR "Monte Carlo" in combination with Reinforce')
+    parser.add_argument('--environment', default='CartPole-v0', type=str,
+                        help='"CartPole-v0", "MountainCar-v0", "LunarLander-v2", "Taxi-v2"')
+    parser.add_argument('--max_episodes', default=1000, type=int,
+                        help='For testing purposes sometimes you want to lower the number of episodes')
     ARGS = parser.parse_args()
 
     if ARGS.run_experiments == ARGS.visualise:
@@ -101,5 +101,6 @@ if __name__ == "__main__":
         run_experiments(ARGS.max_episodes)
     elif ARGS.visualise:
         print("Visualising trained model's performance.")
-        model_path = "Models_Claartje/{}/{}_n_step{}_{}_actor.pth".format(ARGS.environment, ARGS.model_type, ARGS.n_step, ARGS.environment)
+        model_path = "Models_Claartje/{}/{}_n_step{}_{}_actor.pth".format(ARGS.environment, ARGS.model_type,
+                                                                          ARGS.n_step, ARGS.environment)
         helpers.visualize_performance(ARGS.environment, model_path, device)
