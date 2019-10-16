@@ -126,12 +126,12 @@ def save_models(models, model_type, n_step, environment_name):
 
 
 def visualize_performance(environment_name, model_path, device):
-    env = gym.make(environment_name)
-
+    env_to_wrap = gym.make(environment_name)
+    env = gym.wrappers.Monitor(env_to_wrap, 'Videos/{}/{}/'.format(environment_name, model_path.split('/')[-1]), force = True, video_callable=lambda episode_id: True)
     actor = torch.load(model_path)
 
     rewards = []
-    for episode in np.arange(100):
+    for episode in np.arange(5):
         s = env.reset()
         episode_reward = 0
         while True:
@@ -147,6 +147,8 @@ def visualize_performance(environment_name, model_path, device):
                 print(episode_reward)
                 break
 
+    env.close()
+    env_to_wrap.close()
     print("Average reward over episodes: ", np.mean(rewards))
     plt.plot(rewards)
 
