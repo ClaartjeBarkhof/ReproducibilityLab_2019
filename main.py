@@ -101,5 +101,5 @@ if __name__ == "__main__":
         run_experiments(ARGS.max_episodes)
     elif ARGS.visualise:
         print("Visualising trained model's performance.")
-        model_path = "Models_Claartje/{}/{}_n_step{}_{}_actor.pth".format(environment_name, model_type, n_step, environment_name)
+        model_path = "Models_Claartje/{}/{}_n_step{}_{}_actor.pth".format(ARGS.environment, ARGS.model_type, ARGS.n_step, ARGS.environment)
         helpers.visualize_performance(ARGS.environment, model_path, device)
