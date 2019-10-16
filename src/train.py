@@ -55,7 +55,7 @@ def train_actor_critic(env, models, optimizer, num_episodes, gamma, n_step=1,
         opt_critic.zero_grad()
         if model_type == "Reinforce":
             actor_loss.backward(retain_graph=True)
-        else: 
+        else:
             actor_loss.backward()
         critic_loss.backward()
         opt_actor.step()
@@ -218,11 +218,14 @@ def calculate_loss(discounted_returns, log_prob, v_s, pi_entropy, actions=None, 
     :return:
     """
 
-    if model_type == "Advantage":
+    if model_type == "Advantage" or model_type == "Reinforce":
         advantage = discounted_returns - v_s[:-1]
 
         loss_actor = (-log_prob * advantage.detach() - pi_entropy * 0.01).mean()
         loss_critic = advantage.pow(2).mean()
+
+        return loss_actor, loss_critic * 0.5
+
 
     elif model_type == "Q":
         q_values = torch.gather(v_s[:-1], 1, actions[:, None])
@@ -231,10 +234,4 @@ def calculate_loss(discounted_returns, log_prob, v_s, pi_entropy, actions=None, 
         # Q learning loss
         loss_critic = F.smooth_l1_loss(q_values, discounted_returns)
 
-
-    elif model_type == "Reinforce":
-        advantage = discounted_returns - v_s[:-1]
-        loss_actor = (-log_prob * advantage - pi_entropy * 0.01).mean()
-        loss_critic = advantage.pow(2).mean()
-
-    return loss_actor, loss_critic * 0.5
+        return loss_actor, loss_critic * 0.5
