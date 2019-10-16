@@ -76,10 +76,11 @@ def init_model(model_type, env, learn_rates, device, n_hidden=(128, 256)):
     """
     lr_actor, lr_critic = learn_rates
     # print("Observation and action space: ")
-    # print(env.observation_space)
+    # print(env.observation_space.n)
+    # quit()
     # print(env.action_space)
-    n_state_features = env.observation_space.shape[0]
-    # n_state_features = env.observation_space.n
+    # n_state_features = env.observation_space.shape[0]
+    n_state_features = env.observation_space.n
     n_actions = env.action_space.n
 
     if model_type == "Advantage" or model_type == "Reinforce":
