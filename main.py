@@ -7,9 +7,8 @@ import numpy as np
 from src import train, helpers
 
 
-def start_training(environment, model_type, n_step, max_episodes):
-    # env = gym.make(environment)
-    env = gym.make('LunarLander-v2')
+def start_training(environment_name, model_type, n_step, max_episodes):
+    env = gym.make(environment_name)
 
     # SETTINGS
     learn_rates = (7e-4, 7e-4)
@@ -21,16 +20,15 @@ def start_training(environment, model_type, n_step, max_episodes):
     torch.manual_seed(seed)
     env.seed(seed)
 
-    model_names = ("actor_"+environment, 'critic_'+environment)
-
     # INIT
     models, optimizer = helpers.init_model(model_type, env, learn_rates, device, n_hidden=(64, 64))
     # TRAIN
-    episode_durations, cumulative_reward, actor_losses, critic_losses, running_average = train.train_actor_critic(env, models, optimizer, num_episodes, gamma,
-                                                                            n_step, model_names,
+    episode_durations, cumulative_reward, actor_losses, critic_losses, running_average = train.train_actor_critic(env, environment_name, models, 
+                                                                            optimizer, num_episodes, gamma,
+                                                                            n_step,
                                                                             model_type)
     # PLOT
-    helpers.plot_results(episode_durations, running_average, cumulative_reward, actor_losses, critic_losses, n_step, environment,
+    helpers.plot_results(episode_durations, running_average, cumulative_reward, actor_losses, critic_losses, n_step, environment_name,
                          model_type)
 
 
@@ -39,29 +37,32 @@ def run_experiments(max_episodes):
     # model_names = [("actor_cartpole", "v_cartpole"), ("actor_mountainCar", "v_mountainCar"),
                # ("actor_lunarlander", "v_lunarlander"), ("actor_taxi", "v_taxi")]
 
-    environments = ["Taxi-v2", "LunarLander-v2", "CartPole-v0", "MountainCar-v0"]
+    environments = ["CartPole-v0", "MountainCar-v0", "Taxi-v2", "LunarLander-v2"]
     for environment in environments:
         model_types = ["Reinforce", "Advantage", "Q"]
         for model_type in model_types:
-            # n_steps = [1, 2, 4, 8, 16]
-            # for n_step in n_steps:
-            n_step = 2
+            n_steps = [1, 2, 4, 8]
             if model_type == "Reinforce":
-                n_step = "Monte Carlo"
-            
-            print('**********************************************************************')
-            print("Environment:", environment, 'Model type:', model_type, 'N_step:', n_step)
-            print('**********************************************************************')
-            
-            start_training(environment, model_type, n_step, max_episodes)
-            if model_type == "Reinforce":
-                print("Reinforce is automatically all N steps, so no n-step variations needed.")
-                break
+                    n_step = "Monte Carlo"
+                    print("\n --> Reinforce is automatically all N steps, so no n-step variations needed. \n")
+                    print('**********************************************************************')
+                    print("Environment:", environment, 'Model type:', model_type, 'N_step:', n_step)
+                    print('**********************************************************************')
+                    
+                    start_training(environment, model_type, n_step, max_episodes)
+            else:
+                for n_step in n_steps:
+                    print('**********************************************************************')
+                    print("Environment:", environment, 'Model type:', model_type, 'N_step:', n_step)
+                    print('**********************************************************************')
+
+                    start_training(environment, model_type, n_step, max_episodes)
         
 if __name__ == "__main__":
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     # MAKE FOLDERS (if dont exist)
+    os.makedirs('Models', exist_ok=True)
     os.makedirs('Results', exist_ok=True)
     os.makedirs('Results/numpy', exist_ok=True)
     os.makedirs('Results/Plots', exist_ok=True)
@@ -74,12 +75,17 @@ if __name__ == "__main__":
                             help='whether trained models should be loaded and visualised')
     parser.add_argument(    '--model_type', default='Advantage', type=str,
                             help='Advantage, Q or Reinforce')
+    parser.add_argument(    '--n_step', default='1', type=str,
+                            help='[1, 2, 4, 8] OR reinforce')
     parser.add_argument(    '--environment', default='CartPole-v0', type=str,
                             help='"CartPole-v0", "MountainCar-v0", "LunarLander-v2", "Taxi-v2"')
     parser.add_argument(    '--max_episodes', default=1000, type=int,
                             help='For testing purposes sometimes you want to lower the number of episodes')
     ARGS = parser.parse_args()
-    
+
+    model_path = "Models/{}_n_step{}_{}_actor.pth".format(ARGS.model_type, ARGS.n_step, ARGS.environment)
+    print(model_path)
+
     if ARGS.run_experiments == ARGS.visualise:
         print( '***** You can not both run experiments and visualise in one run. You have to choose between the two options. \n \
                 EITHER: \n \
@@ -95,16 +101,5 @@ if __name__ == "__main__":
         run_experiments(ARGS.max_episodes)
     elif ARGS.visualise:
         print("Visualising trained model's performance.")
-        model_path = "models/actor_" + ARGS.environment + ".pth"
+        model_path = "Models/{}_n_step{}_{}_actor.pth".format(model_type, n_step, environment_name)
         helpers.visualize_performance(ARGS.environment, model_path, device)
-
-    # start_training(device)
-    # model_path = "models/actor_mountainCar.pth"
-    # model_path = "models/actor_cartpole.pth"
-    # model_path = "models/actor_lunarlander.pth"
-    # model_path = "models/actor_taxi.pth"
-    # environment_name = "MountainCar-v0"
-    # environment_name = "CartPole-v0"
-    # environment_name = "LunarLander-v2"
-    # environment_name = "Taxi-v2"
-    # helpers.visualize_performance(environment_name, model_path, device)

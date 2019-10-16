@@ -52,7 +52,7 @@ def plot_results(episode_durations, running_average, reward_across_episodes, act
                     'critic_losses':critic_losses,
                     'model_type':model_types
                     }
-                    
+
     # save results in npy for altering plots later on etc.
     np.save("Results/numpy/{}_n_step{}_{}.npy".format(environment_name, n_step, model_types), result_dict)
     # save plt
@@ -106,17 +106,18 @@ def init_model(model_type, env, learn_rates, device, n_hidden=(128, 256)):
         print("No matching procedure")
 
 
-def save_models(models, model_names):
+def save_models(models, model_type, n_step, environment_name):
     """
 
     :param models:
     :param model_names:
     :return:
     """
-    path = "models/{}.pth"
+    # path = "models/{}.pth"
+    filename = "Models/{}_n_step{}_{}".format(model_type, n_step, environment_name)
     actor, critic = models
-    torch.save(actor, path.format(model_names[0]))
-    torch.save(critic, path.format(model_names[1]))
+    torch.save(actor, filename + '_actor.pth')
+    torch.save(critic, filename + '_critic.pth')
 
 
 def visualize_performance(environment_name, model_path, device):

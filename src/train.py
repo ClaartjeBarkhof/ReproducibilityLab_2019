@@ -7,8 +7,8 @@ from tqdm import tqdm
 from .helpers import save_models, compute_q_val
 
 
-def train_actor_critic(env, models, optimizer, num_episodes, gamma, n_step=1,
-                       model_names=("actor_cartpole", "v_cartpole"), model_type="Advantage"):
+def train_actor_critic(env, environment_name, models, optimizer, num_episodes, gamma, n_step=1,
+                       model_type="Advantage"):
     """
     :param env:
     :param models:
@@ -39,7 +39,11 @@ def train_actor_critic(env, models, optimizer, num_episodes, gamma, n_step=1,
 
         # TODO: probably here a good place distinguish different critics and returns
         # Monte Carlo, otherwise n-step 1 ... N
-        if n_step == "Monte Carlo":
+        if type(n_step) == int:
+            if len(rewards) > n_step:
+                n_longer_than_r = True
+            else: n_longer_than_r = False
+        if (n_step == "Monte Carlo") or (n_longer_than_r == True):
             discounted_returns = get_cumulative_discounted_rewards(rewards, done_list, gamma)
             discounted_returns = (discounted_returns - discounted_returns.mean()) / discounted_returns.std()
             actor_loss, critic_loss = calculate_loss(discounted_returns, log_probs, critic_values, pi_entropy,
@@ -72,7 +76,7 @@ def train_actor_critic(env, models, optimizer, num_episodes, gamma, n_step=1,
                     len(rewards),
                     actor_loss))
 
-    save_models((actor, critic), model_names)
+    save_models((actor, critic), model_type, n_step, environment_name)
 
     return episode_durations, cumulative_reward, actor_losses, critic_losses, running_average
 
