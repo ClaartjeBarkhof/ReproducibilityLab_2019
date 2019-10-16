@@ -139,6 +139,10 @@ def select_action(model, state):
     :return:
     """
     pi_s_a = model(state)
+    # print(pi_s_a.probs.detach().numpy())
+    if np.any(pi_s_a.probs.detach().numpy() < 0):
+        print(pi_s_a)
+        quit()
     a = pi_s_a.sample()
     log_prob = pi_s_a.log_prob(a).unsqueeze(0)
 

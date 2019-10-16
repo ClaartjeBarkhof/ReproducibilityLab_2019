@@ -38,9 +38,9 @@ def start_training(environment_name, model_type, n_step, max_episodes):
 
 
 def run_experiments(max_episodes):
-    environments = ["Taxi-v2"] #"LunarLander-v2","CartPole-v0", "MountainCar-v0", 
+    environments = ["LunarLander-v2","CartPole-v0", "MountainCar-v0","Taxi-v2"] # 
     for environment in environments:
-        model_types = ["Advantage", "Q"] #"Reinforce"
+        model_types = ["Advantage", "Q", "Reinforce"] #"Reinforce"
         for model_type in model_types:
             n_steps = [1, 2, 4, 8]
             if model_type == "Reinforce":
