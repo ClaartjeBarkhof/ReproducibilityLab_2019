@@ -66,9 +66,9 @@ def train_actor_critic(env, environment_name, models, optimizer, num_episodes, g
         actor_losses.append(actor_loss.item())
         critic_losses.append(critic_loss.item())
 
-        if episode % 10 == 0:
+        if episode % 50 == 0:
             print(
-                "Episode: {}/{}:  current reward: {}, average reward: {},   current steps: {},   loss: {} ".format(
+                "Episode: {:0>4d}/{:0>4d}:  current reward: {:.2f}, average reward: {:.2f},   current steps: {:.2f},   loss: {:.2f} ".format(
                     episode,
                     num_episodes,
                     np.sum(rewards),

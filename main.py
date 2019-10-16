@@ -34,12 +34,9 @@ def start_training(environment_name, model_type, n_step, max_episodes):
 
 def run_experiments(max_episodes):
     # names for saving the models afterwards
-    # model_names = [("actor_cartpole", "v_cartpole"), ("actor_mountainCar", "v_mountainCar"),
-               # ("actor_lunarlander", "v_lunarlander"), ("actor_taxi", "v_taxi")]
-
     environments = ["CartPole-v0", "MountainCar-v0", "Taxi-v2", "LunarLander-v2"]
     for environment in environments:
-        model_types = ["Reinforce", "Advantage", "Q"]
+        model_types = ["Reinforce", "Advantage"] #, "Q"
         for model_type in model_types:
             n_steps = [1, 2, 4, 8]
             if model_type == "Reinforce":
@@ -76,7 +73,7 @@ if __name__ == "__main__":
     parser.add_argument(    '--model_type', default='Advantage', type=str,
                             help='Advantage, Q or Reinforce')
     parser.add_argument(    '--n_step', default='1', type=str,
-                            help='[1, 2, 4, 8] OR reinforce')
+                            help='"1", "2", "4", "8" OR "Monte Carlo" in combination with Reinforce')
     parser.add_argument(    '--environment', default='CartPole-v0', type=str,
                             help='"CartPole-v0", "MountainCar-v0", "LunarLander-v2", "Taxi-v2"')
     parser.add_argument(    '--max_episodes', default=1000, type=int,
@@ -90,6 +87,7 @@ if __name__ == "__main__":
                 OR eg: \n \
                 --visualise=True \n \
                 --model_type=Advantage \n \
+                --n_step=1 \n \
                 --environment=CartPole-v0')
         quit()
 

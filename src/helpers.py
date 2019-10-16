@@ -1,5 +1,6 @@
 import time
 
+import pickle
 import torch
 from torch import optim
 
@@ -44,17 +45,19 @@ def plot_results(episode_durations, running_average, reward_across_episodes, act
     ax1.legend()
     ax2.legend()
 
-    result_dict = { 'Environement': environment_name,
+    result_dict = { 'environment': environment_name,
                     'n_step':n_step,
                     'running_average': running_average,
-                    'Rewards_across_episodes': reward_across_episodes,
+                    'rewards_across_episodes': reward_across_episodes,
                     'actor_losses':actor_losses,
                     'critic_losses':critic_losses,
                     'model_type':model_types
                     }
 
     # save results in npy for altering plots later on etc.
-    np.save("Results/numpy/{}_n_step{}_{}.npy".format(environment_name, n_step, model_types), result_dict)
+    # np.save("Results/numpy/{}_n_step{}_{}.npy".format(environment_name, n_step, model_types), result_dict)
+    with open("Results/numpy/{}_n_step{}_{}.pickle".format(environment_name, n_step, model_types), 'wb') as handle:
+        pickle.dump(result_dict, handle, protocol=pickle.HIGHEST_PROTOCOL)
     # save plt
     plt.savefig("Results/Plots/{}_n_step{}_{}.png".format(environment_name, n_step, model_types))
     # plt.show()
