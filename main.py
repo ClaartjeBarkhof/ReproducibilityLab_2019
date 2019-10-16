@@ -89,9 +89,6 @@ if __name__ == "__main__":
                         help='For testing purposes sometimes you want to lower the number of episodes')
     ARGS = parser.parse_args()
 
-    model_path = "Models/{}_n_step{}_{}_actor.pth".format(ARGS.model_type, ARGS.n_step, ARGS.environment)
-    print(model_path)
-
     if ARGS.run_experiments == ARGS.visualise:
         print('***** You can not both run experiments and visualise in one run. You have to choose between the two options. \n \
                 EITHER: \n \
