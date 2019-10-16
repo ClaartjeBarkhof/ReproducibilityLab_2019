@@ -239,8 +239,8 @@ def calculate_loss(discounted_returns, log_prob, v_s, pi_entropy, actions=None, 
         q_error = discounted_returns - q_values
 
         # loss_actor = (-log_prob * q_error.detach() - pi_entropy * 0.01).mean()
-        # loss_actor = (-log_prob * q_error.detach()).mean()
-        loss_actor = (-log_prob * q_values.detach()).mean()
+        loss_actor = (-log_prob * q_error.detach()).mean()
+        # loss_actor = (-log_prob * q_values.detach()).mean()
         # Q learning loss
         # loss_critic = F.smooth_l1_loss(q_values, discounted_returns)
         loss_critic = q_error.pow(2).mean()
