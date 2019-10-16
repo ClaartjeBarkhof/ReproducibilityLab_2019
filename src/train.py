@@ -40,7 +40,7 @@ def train_actor_critic(env, environment_name, models, optimizer, num_episodes, g
         # TODO: probably here a good place distinguish different critics and returns
         # Monte Carlo, otherwise n-step 1 ... N
         if type(n_step) == int:
-            if len(rewards) > n_step:
+            if len(rewards) < n_step:
                 n_longer_than_r = True
             else: n_longer_than_r = False
         if (n_step == "Monte Carlo") or (n_longer_than_r == True):

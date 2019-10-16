@@ -36,7 +36,7 @@ def run_experiments(max_episodes):
     # names for saving the models afterwards
     environments = ["CartPole-v0", "MountainCar-v0", "Taxi-v2", "LunarLander-v2"]
     for environment in environments:
-        model_types = ["Reinforce", "Advantage"] #, "Q"
+        model_types = ["Reinforce", "Advantage", "Q"] #, "Q"
         for model_type in model_types:
             n_steps = [1, 2, 4, 8]
             if model_type == "Reinforce":
