@@ -7,12 +7,13 @@ import numpy as np
 from src import train, helpers
 
 
-def start_training(environment, model_type, n_step):
-    env = gym.make(environment)
+def start_training(environment, model_type, n_step, max_episodes):
+    # env = gym.make(environment)
+    env = gym.make('LunarLander-v2')
 
     # SETTINGS
     learn_rates = (7e-4, 7e-4)
-    num_episodes = 1000
+    num_episodes = max_episodes
     gamma = 0.99
     seed = 42
     random.seed(seed)
@@ -25,20 +26,20 @@ def start_training(environment, model_type, n_step):
     # INIT
     models, optimizer = helpers.init_model(model_type, env, learn_rates, device, n_hidden=(64, 64))
     # TRAIN
-    episode_durations, cumulative_reward, actor_losses, running_average = train.train_actor_critic(env, models, optimizer, num_episodes, gamma,
+    episode_durations, cumulative_reward, actor_losses, critic_losses, running_average = train.train_actor_critic(env, models, optimizer, num_episodes, gamma,
                                                                             n_step, model_names,
                                                                             model_type)
     # PLOT
-    helpers.plot_results(episode_durations, running_average, cumulative_reward, actor_losses, n_step, environment,
+    helpers.plot_results(episode_durations, running_average, cumulative_reward, actor_losses, critic_losses, n_step, environment,
                          model_type)
 
 
-def run_experiments():
+def run_experiments(max_episodes):
     # names for saving the models afterwards
     # model_names = [("actor_cartpole", "v_cartpole"), ("actor_mountainCar", "v_mountainCar"),
                # ("actor_lunarlander", "v_lunarlander"), ("actor_taxi", "v_taxi")]
 
-    environments = ["CartPole-v0", "MountainCar-v0", "LunarLander-v2", "Taxi-v2"]
+    environments = ["Taxi-v2", "LunarLander-v2", "CartPole-v0", "MountainCar-v0"]
     for environment in environments:
         model_types = ["Reinforce", "Advantage", "Q"]
         for model_type in model_types:
@@ -52,7 +53,7 @@ def run_experiments():
             print("Environment:", environment, 'Model type:', model_type, 'N_step:', n_step)
             print('**********************************************************************')
             
-            start_training(environment, model_type, n_step)
+            start_training(environment, model_type, n_step, max_episodes)
             if model_type == "Reinforce":
                 print("Reinforce is automatically all N steps, so no n-step variations needed.")
                 break
@@ -75,6 +76,8 @@ if __name__ == "__main__":
                             help='Advantage, Q or Reinforce')
     parser.add_argument(    '--environment', default='CartPole-v0', type=str,
                             help='"CartPole-v0", "MountainCar-v0", "LunarLander-v2", "Taxi-v2"')
+    parser.add_argument(    '--max_episodes', default=1000, type=int,
+                            help='For testing purposes sometimes you want to lower the number of episodes')
     ARGS = parser.parse_args()
     
     if ARGS.run_experiments == ARGS.visualise:
@@ -89,7 +92,7 @@ if __name__ == "__main__":
 
     if ARGS.run_experiments:
         print('Running experiments...')
-        run_experiments()
+        run_experiments(ARGS.max_episodes)
     elif ARGS.visualise:
         print("Visualising trained model's performance.")
         model_path = "models/actor_" + ARGS.environment + ".pth"

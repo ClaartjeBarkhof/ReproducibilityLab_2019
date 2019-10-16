@@ -22,6 +22,7 @@ def train_actor_critic(env, models, optimizer, num_episodes, gamma, n_step=1,
     episode_durations = []
     cumulative_reward = []
     actor_losses = []
+    critic_losses = []
     running_average = []
 
     actor, critic = models
@@ -58,7 +59,8 @@ def train_actor_critic(env, models, optimizer, num_episodes, gamma, n_step=1,
         opt_actor.step()
         opt_critic.step()
 
-        actor_losses.append(actor_loss)
+        actor_losses.append(actor_loss.item())
+        critic_losses.append(critic_loss.item())
 
         if episode % 10 == 0:
             print(
@@ -72,7 +74,7 @@ def train_actor_critic(env, models, optimizer, num_episodes, gamma, n_step=1,
 
     save_models((actor, critic), model_names)
 
-    return episode_durations, cumulative_reward, actor_losses, running_average
+    return episode_durations, cumulative_reward, actor_losses, critic_losses, running_average
 
 
 def run_episode(env, actor, critic, model_type):

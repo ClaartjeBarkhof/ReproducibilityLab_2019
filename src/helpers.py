@@ -25,7 +25,7 @@ def smooth(x, N):
 
 
 # TODO: implement a def plot_results function ...
-def plot_results(episode_durations, running_average, reward_across_episodes, actor_losses, n_step, environment_name,
+def plot_results(episode_durations, running_average, reward_across_episodes, actor_losses, critic_losses, n_step, environment_name,
                  model_types):
     """
     :param episode_durations:
@@ -49,9 +49,10 @@ def plot_results(episode_durations, running_average, reward_across_episodes, act
                     'running_average': running_average,
                     'Rewards_across_episodes': reward_across_episodes,
                     'actor_losses':actor_losses,
+                    'critic_losses':critic_losses,
                     'model_type':model_types
                     }
-
+                    
     # save results in npy for altering plots later on etc.
     np.save("Results/numpy/{}_n_step{}_{}.npy".format(environment_name, n_step, model_types), result_dict)
     # save plt
