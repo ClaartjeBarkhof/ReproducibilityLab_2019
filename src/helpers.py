@@ -33,7 +33,7 @@ def plot_results(episode_durations, running_average, reward_across_episodes, act
     :return:
     """
 
-    fig = plt.figure(figsize=(15, 6), dpi=300)
+    fig = plt.figure(figsize=(15, 6), dpi=72)
     ax1 = fig.add_subplot(1, 2, 1)
     ax2 = fig.add_subplot(1, 2, 2)
     fig.suptitle('{} Actor-Critic in {} at n: {}'.format(model_types, environment_name, n_step), fontsize=24)
@@ -44,8 +44,8 @@ def plot_results(episode_durations, running_average, reward_across_episodes, act
     ax1.legend()
     ax2.legend()
 
-    plt.savefig("{}_n_step{}_{}.png".format(environment_name, n_step, model_types))
-    plt.show()
+    plt.savefig("Results/{}_n_step{}_{}.png".format(environment_name, n_step, model_types))
+    # plt.show()
 
 
 def init_model(model_type, env, learn_rates, device, n_hidden=(128, 256)):
@@ -59,9 +59,9 @@ def init_model(model_type, env, learn_rates, device, n_hidden=(128, 256)):
     :return:
     """
     lr_actor, lr_critic = learn_rates
-    print("Observation and action space: ")
-    print(env.observation_space)
-    print(env.action_space)
+    # print("Observation and action space: ")
+    # print(env.observation_space)
+    # print(env.action_space)
     n_state_features = env.observation_space.shape[0]
     # n_state_features = env.observation_space.n
     n_actions = env.action_space.n
@@ -69,10 +69,10 @@ def init_model(model_type, env, learn_rates, device, n_hidden=(128, 256)):
     if model_type == "Advantage" or model_type == "Reinforce":
         actor = Actor(n_state_features, n_actions, n_hidden, device).to(device)
         critic = ValueFunction(n_state_features, n_hidden, device).to(device)
-        print("Actor Network: ")
-        print(actor)
-        print("Critic Network: ")
-        print(critic)
+        # print("Actor Network: ")
+        # print(actor)
+        # print("Critic Network: ")
+        # print(critic)
         opt_actor = optim.Adam(actor.parameters(), lr_actor)
         opt_critic = optim.Adam(critic.parameters(), lr_critic)
 
@@ -81,10 +81,10 @@ def init_model(model_type, env, learn_rates, device, n_hidden=(128, 256)):
     elif model_type == "Q":
         actor = Actor(n_state_features, n_actions, n_hidden, device).to(device)
         critic = QValueFunction(n_state_features, n_actions, n_hidden, device).to(device)
-        print("Actor Network: ")
-        print(actor)
-        print("Critic Network: ")
-        print(critic)
+        # print("Actor Network: ")
+        # print(actor)
+        # print("Critic Network: ")
+        # print(critic)
         opt_actor = optim.Adam(actor.parameters(), lr_actor)
         opt_critic = optim.Adam(critic.parameters(), lr_critic)
 

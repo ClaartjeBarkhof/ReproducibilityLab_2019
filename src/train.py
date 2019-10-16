@@ -10,7 +10,6 @@ from .helpers import save_models, compute_q_val
 def train_actor_critic(env, models, optimizer, num_episodes, gamma, n_step=1,
                        model_names=("actor_cartpole", "v_cartpole"), model_type="Advantage"):
     """
-
     :param env:
     :param models:
     :param optimizer:
@@ -54,7 +53,10 @@ def train_actor_critic(env, models, optimizer, num_episodes, gamma, n_step=1,
 
         opt_actor.zero_grad()
         opt_critic.zero_grad()
-        actor_loss.backward()
+        if model_type == "Reinforce":
+            actor_loss.backward(retain_graph=True)
+        else: 
+            actor_loss.backward()
         critic_loss.backward()
         opt_actor.step()
         opt_critic.step()
