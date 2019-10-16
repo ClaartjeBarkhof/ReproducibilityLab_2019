@@ -149,6 +149,13 @@ def visualize_performance(environment_name, model_path, device):
 
     env.close()
     env_to_wrap.close()
+
+    f = open('Videos/{}/{}/rewards.txt'.format(environment_name, model_path.split('/')[-1]),"w+")
+    for i,r in enumerate(rewards):
+        f.write(str(r)+"\n")
+    f.write("Average reward over episodes: "+str(np.mean(rewards)))
+    f.close()
+
     print("Average reward over episodes: ", np.mean(rewards))
     plt.plot(rewards)
 
