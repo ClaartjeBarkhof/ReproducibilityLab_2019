@@ -7,7 +7,7 @@ import numpy as np
 from src import train, helpers
 
 
-def start_training(environment_name, model_type, n_step, max_episodes):
+def start_training(environment_name, model_type, n_step, max_episodes, device):
     env = gym.make(environment_name)
 
     # SETTINGS
@@ -38,6 +38,7 @@ def start_training(environment_name, model_type, n_step, max_episodes):
 
 
 def run_experiments(max_episodes):
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     environments = ["CartPole-v0", "LunarLander-v2", "MountainCar-v0", "Taxi-v2"]  #
     for environment in environments:
         model_types = ["Advantage", "Q", "Reinforce"]  # "Reinforce"
@@ -54,8 +55,6 @@ def run_experiments(max_episodes):
                 start_training(environment, model_type, n_step, max_episodes)
 
 if __name__ == "__main__":
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
     # MAKE FOLDERS (if dont exist)
     os.makedirs('Models', exist_ok=True)
     os.makedirs('Results', exist_ok=True)

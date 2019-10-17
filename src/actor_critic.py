@@ -59,7 +59,7 @@ class ValueFunction(nn.Module):
         if isinstance(state, np.int64) or isinstance(state, int):
             # Convert int into onehot vector
             state = torch.nn.functional.one_hot(torch.tensor(state), self.n_state_features)
-            state = state.type(torch.FloatTensor)
+            state = state.type(torch.FloatTensor).to(self.device)
         else:
             state = torch.FloatTensor(state).to(self.device)
         state_value = self.critic_network(state)
@@ -89,7 +89,7 @@ class QValueFunction(nn.Module):
         if isinstance(state, np.int64) or isinstance(state, int):
             # Convert int into onehot vector
             state = torch.nn.functional.one_hot(torch.tensor(state), self.n_state_features)
-            state = state.type(torch.FloatTensor)
+            state = state.type(torch.FloatTensor).to(self.device)
         else:
             state = torch.FloatTensor(state).to(self.device)
         state_value = self.critic_network(state)
