@@ -30,7 +30,8 @@ def start_training(environment_name, model_type, n_step, max_episodes, device):
                                                                                                                   num_episodes,
                                                                                                                   gamma,
                                                                                                                   n_step,
-                                                                                                                  model_type)
+                                                                                                                  model_type,
+                                                                                                                  device)
     # PLOT
     helpers.plot_results(episode_durations, running_average, cumulative_reward, actor_losses, critic_losses, n_step,
                          environment_name,
@@ -48,11 +49,12 @@ def run_experiments(max_episodes):
                 n_steps = ["Monte Carlo"]
             else:
                 n_steps = [1, 2, 4, 8]
-            for n_step in n_steps:    
+            for n_step in n_steps:
                 print('**********************************************************************')
                 print("Environment:", environment, 'Model type:', model_type, 'N_step:', n_step)
                 print('**********************************************************************')
-                start_training(environment, model_type, n_step, max_episodes)
+                start_training(environment, model_type, n_step, max_episodes, device)
+
 
 if __name__ == "__main__":
     # MAKE FOLDERS (if dont exist)

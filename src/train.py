@@ -8,7 +8,7 @@ from .helpers import save_models, compute_q_val
 
 
 def train_actor_critic(env, environment_name, models, optimizer, num_episodes, gamma, n_step=1,
-                       model_type="Advantage"):
+                       model_type="Advantage", device="cpu"):
     """
     :param env:
     :param models:
@@ -111,7 +111,7 @@ def run_episode(env, actor, critic, model_type):
         critic_values.append(v_s)
         states.append(s)
         actions.append(a)
-        rewards.append(torch.FloatTensor([reward]))
+        rewards.append(torch.FloatTensor([reward]).to(self.device))
         log_probs.append(log_prob)
         pi_entropies.append(pi_entropy)
         done_list.append(torch.FloatTensor([1 - done]))
@@ -139,10 +139,6 @@ def select_action(model, state):
     :return:
     """
     pi_s_a = model(state)
-    # print(pi_s_a.probs.detach().numpy())
-    if np.any(pi_s_a.probs.detach().numpy() < 0):
-        print(pi_s_a)
-        quit()
     a = pi_s_a.sample()
     log_prob = pi_s_a.log_prob(a).unsqueeze(0)
 
