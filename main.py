@@ -42,23 +42,16 @@ def run_experiments(max_episodes):
     for environment in environments:
         model_types = ["Advantage", "Q", "Reinforce"]  # "Reinforce"
         for model_type in model_types:
-            n_steps = [1, 2, 4, 8]
             if model_type == "Reinforce":
-                n_step = "Monte Carlo"
                 print("\n --> Reinforce is automatically all N steps, so no n-step variations needed. \n")
+                n_steps = ["Monte Carlo"]
+            else:
+                n_steps = [1, 2, 4, 8]
+            for n_step in n_steps:    
                 print('**********************************************************************')
                 print("Environment:", environment, 'Model type:', model_type, 'N_step:', n_step)
                 print('**********************************************************************')
-
                 start_training(environment, model_type, n_step, max_episodes)
-            else:
-                for n_step in n_steps:
-                    print('**********************************************************************')
-                    print("Environment:", environment, 'Model type:', model_type, 'N_step:', n_step)
-                    print('**********************************************************************')
-
-                    start_training(environment, model_type, n_step, max_episodes)
-
 
 if __name__ == "__main__":
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
