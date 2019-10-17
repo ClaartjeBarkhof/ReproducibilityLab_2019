@@ -111,7 +111,7 @@ def run_episode(env, actor, critic, model_type):
         critic_values.append(v_s)
         states.append(s)
         actions.append(a)
-        rewards.append(torch.FloatTensor([reward]).to(self.device))
+        rewards.append(torch.FloatTensor([reward]))
         log_probs.append(log_prob)
         pi_entropies.append(pi_entropy)
         done_list.append(torch.FloatTensor([1 - done]))
