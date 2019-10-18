@@ -1,6 +1,8 @@
-# Tuning variance 
+# Exploring variance 
 
-# in actor-critic methods
+# in n-step actor-critic 
+
+# methods
 
 ##### By David Biertimpel, Alex Lindt, 
 
@@ -187,11 +189,17 @@ To illustrate the variance over the several runs previous sections, we will now 
 
 ### Variance-bias debate
 
---> TEXT <---
-
 <img src="links/variance_rewards_MC_A_Q.png" alt="variance_rewards_MC_A_Q" style="zoom:60%;" />Figure 6: Cumulative rewards plotted with variance over 5 runs during training for different algorithms
 
+For the experiments of this section we picked the most successful n-step value for advantage actor-critic and Q actor-critic respectively and compared those versions to our baseline algorithm. The experiments are done in the CartPole-v0 environment.To understand the differences of our approaches with regard to the bias-variance tradeoff, we take a closer look at the variance of the rewards and losses they obtain while training. The first figure shows the variance in rewards over the course of training. For REINFORCE with baseline, we can see that the rewards have overall the lowest variance and that the variance is highest in the beginning and gets less over the training. This means that it has learned optimal behavior, which is likely due to the fact that the environment is so simple. In contrast, for Advantage actor-critic and especially for Q actor-critic we see that the variance in rewards is generally higher and also gets higher over training. Both algorithms are less stable in their performance than the REINFORCE with baseline. It is apparent that Q actor-critic is more instable than the Advantage actor-critic in general. Even if it occasionally ‘solves’ the environment in later training steps, obtaining close to the maximum reward of 200, it does obtain rewards of down to 20 at the same time. The Advantage actor-critic, even if more stable that the Q actor-critic, does not work as reliable as the REINFORCE with baseline. Although it achieves comparatively constant rewards between 150 and 200 in the later training steps, it seems to never fully converge to the optimal policy. We interpret this as an expression of the bias of the Advantage actor-critic algorithm, as the known unbiased REINFORCE with baseline does not show this behavior.
+
+Though it achieves a decent performance, Advantage actor-critic does not achieve the same optimal performance as REINFORCE with baseline, which could be due to bias.
+
 <img src="links/variance_losses_MC_A_Q.png" alt="variance_losses_MC_A_Q" style="zoom:60%;" />Figure 7: Actor and critic loss plotted with variance over 5 runs during training for different algorithms
+
+When we consider the variance of the losses of the actor and critic, we first observe that all curves show a rather high variance, which is not surprising. However, we quickly observe that in the case of the actor losses the REINFORCE loss starts low and gets larger the longer the episode takes. This makes sense as the variance in the full sampled trajectories should also be reflected in the loss. By contrast the Advantage actor-critic and Q actor-critic agents are much more homoscedastic in that sense. What is also striking about the actor loss is that it is not really decreasing. This is actually reasonable because when we look at the policy gradient update we derived in the beginning. We see that it’s not a loss in the classical sense, but a procedure to increase the probability of well performing actions.
+
+Looking at the loss curves of the critics, we again see a rather normal loss behavior. We consider the high loss curve of the Q-function to evidence the weakly performing Q actor-critic agents. This is further underlined when looking at the significantly lower loss of the advantage critic, which seems to reflect the superior performance of the advantage actor-critic agents. This suggests that the performance of an actor-critic method is highly dependent on how well the critic converges. 
 
 ### Larger N
 
@@ -210,6 +218,7 @@ Here we see that the advantage actor-critic methods with larger n-step values 32
 Figure 9: Behavior simulation in Cartpole environment
 
 When visualizing the trained agents, we can observe some cool differences in behavior!
+
 In the Cartpole environment, we see that at 1-step, the actor-critic agents typically fail to balance the pole for more than a few seconds and do not get a reward above 20. For n-step values greater than 1, the advantage actor-critic agents do a decent job of balancing the pole however they are inclined to move to one side while balancing it, which leads them to drop it. For Reinforce with baseline, the agent learns to balance the pole well by making small movements from left to right.
 
 In the Lunar Lander environment, we see that the three agents have different approaches to landing the spaceship. The advantage actor-critic agent slowly lands by swaying from side to side (making use of the left and right engine), and learns to improve landing as the n-step increases, while the Q actor-critic agent comes crashing down quickly in all experiments. In general, the Reinforce agent has a more direct landing, but does not come to a halt after touching the surface and keeps firing its engines, which decreases reward. Check out the Figure 1 at the top of the page to see this comparison!
@@ -218,7 +227,13 @@ The Mountain Car environment is too challenging and does not result in different
 
 ## Conclusion
 
-<-- TEXT -->
+All in all, our experiments demonstrate that increasing n-step values for Advantage actor-critic methods can lead to performance that is almost as good as REINFORCE with baseline but with less stability. Contrary to our hypothesis, tuning $n$ did not increase performance compared to the basic REINFORCE with baseline algorithm. We can conclude that the best n-step value is dependent on the environment, which is something we did expect. 
+
+Although, our procedure showed success in (some/most) cases we generally observed a lot of variance in performance over different algorithms, environment and even random seeds. This shows us that policy gradients in deep reinforcement learning are complicated animals that demand considerable amounts of care taking and tuning. We can also emphasize findings presented by Ilyas et. al. [9](https://arxiv.org/abs/1811.02553) who state that in some prominent deep RL applications “performance depends heavily on optimizations not part of the core algorithm”, which are not necessarily described in the papers. These optimizations include *reward scaling*, *learning rate annealing*, *orthogonal weight initialization* and *value clipping* among others. We can only guess that some of these additional optimizations are, for example, the reason why the OpenAI baseline implementation of A2C (even with only one environment in parallel) consistently solves the MountainCar environment whereas our approach never managed to do so.
+
+## Code
+
+Our code can be viewed at https://github.com/ClaartjeBarkhof/ReproducibilityLab_2019
 
 ## Citations
 
